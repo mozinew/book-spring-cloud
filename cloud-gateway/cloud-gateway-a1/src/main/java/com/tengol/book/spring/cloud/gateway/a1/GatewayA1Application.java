@@ -25,6 +25,6 @@ public class GatewayA1Application {
 
     public static void main(String[] args) {
         SpringApplication.run(GatewayA1Application.class, args);
-        log.info("start successfully !");
+        log.info("start successfully ...");
     }
 }

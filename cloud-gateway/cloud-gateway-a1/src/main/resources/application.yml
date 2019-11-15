@@ -4,6 +4,18 @@ server:
 spring:
   application:
     name: gateway-a1
+  cloud:
+    gateway:
+      # 使用 yml 方式配置路由规则
+      routes:
+        - id: baidu_route
+          uri: http://www.baidu.com:80/
+          predicates:
+            - Path=/baidu
+        - id: sina_route
+          uri: http://www.sina.com.cn:80/
+          predicates:
+            - Path=/sina
 logging:
   level:
     org.springframework.cloud.gateway: TRACE
@@ -17,3 +29,4 @@ management:
         include: '*'
   security:
     enabled: false
+
