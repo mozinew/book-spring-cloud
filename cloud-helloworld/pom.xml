@@ -9,18 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cloud-gateway</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>cloud-gateway-a1</module>
-        <module>cloud-gateway-a2-predicate</module>
-    </modules>
+    <artifactId>cloud-helloworld</artifactId>
+
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
     </dependencies>
-
 </project>
