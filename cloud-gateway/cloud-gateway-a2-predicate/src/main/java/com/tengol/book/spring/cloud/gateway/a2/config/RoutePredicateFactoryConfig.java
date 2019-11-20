@@ -24,14 +24,65 @@ import java.time.ZonedDateTime;
 @Slf4j
 @Configuration
 public class RoutePredicateFactoryConfig {
+    /**
+     * RemoteAddr 路由断言工厂
+     * 1. 规则：当请求 IP 地址在网段之内或者和配置的 IP 相同，则匹配成功，否则不会成功匹配
+     * 2. 期待：当访问 http://127.0.0.1:8080 时跳转到京东首页，否则不会成功匹配，也不会转发
+     */
+    @Bean
+    public RouteLocator remoteAddrPredicate(RouteLocatorBuilder builder){
+        return builder.routes()
+                .route("remote_addr_route", r->r.remoteAddr("127.0.0.1").uri("http://www.jd.com"))
+                .build();
+    }
+
+    /**
+     * Query 路由断言工厂
+     * 1. 规则：当请求参数中包含路由规则配置的参数（）时成功匹配，否则不会成功匹配
+     * 2. 期待：当请求方法包含参数 hello=world 时成功跳转到百度首页，否则不会匹配
+     */
+    @Bean
+    public RouteLocator queryPredicate(RouteLocatorBuilder builder) {
+        return builder.routes()
+                .route("query_route", r -> r.query("hello", "world").uri("http://www.baidu.com"))
+                .build();
+    }
+
+    /**
+     * Method 路由断言工厂
+     * 1. 规则：当请求方法 (GET/POST) 与规则配置的方法相同时会成功匹配，否则不会匹配
+     * 2. 期待：当请求方法为 GET 时跳转到京东首页，否则不跳转
+     */
+    //@Bean
+    public RouteLocator methodPredicate(RouteLocatorBuilder builder) {
+        RouteLocator methodRoute = builder.routes()
+                .route("method_route", r -> r.method("GET").uri("http://www.baidu.com"))
+                .build();
+        log.info("Method 路由断言工厂启动：{}", JSON.toJSONString(methodRoute));
+
+        return methodRoute;
+    }
+
+    /**
+     * Host 路由断言工厂
+     * 1. 规则：当请求 Host 包含在指定的 Host 配置规则中时成功匹配，否则不会匹配
+     * 2. 期待：配置 Host ( 127.0.0.1 vip.baidu.com )，访问 http://vip.baidu.com:8090 时跳转到京东首页，否则不跳转且报错404
+     */
+    @Bean
+    public RouteLocator hostPredicate(RouteLocatorBuilder builder) {
+        RouteLocator hostRoute = builder.routes().route("host_route", r -> r.host("*.baidu.com:*").uri("http://www.jd.com")).build();
+        log.info("Host 路由断言工厂启动：{}", JSON.toJSONString(hostRoute));
+
+        return hostRoute;
+    }
 
     /**
      * Header 路由断言工厂
      * 1. 规则：根据配置的路由 header 信息进行断言匹配路由，匹配成功则进行转发，否则不进行转发
-     * 2. 预期：
+     * 2. 预期：当 header 包含 x-app-code=spf 时跳转到 /test/header 请求，返回结果为 spf，否则报错 404
      */
     @Bean
-    public RouteLocator headerPredicate(RouteLocatorBuilder builder){
+    public RouteLocator headerPredicate(RouteLocatorBuilder builder) {
         RouteLocator headerRoute = builder.routes()
                 .route("header_route", r -> r.header("x-app-code", "spf").uri("http://localhost:8081/test/header"))
                 .build();
@@ -46,7 +97,7 @@ public class RoutePredicateFactoryConfig {
      * 2. 预期：cookie 包含 hello=world 时跳转到指定URL，否则不跳转
      */
     @Bean
-    public RouteLocator cookiePredicate(RouteLocatorBuilder builder){
+    public RouteLocator cookiePredicate(RouteLocatorBuilder builder) {
         RouteLocator cookieRoute = builder.routes()
                 .route("cookie_route", r -> r.cookie("hello", "world").uri("http://localhost:8081/test/cookie"))
                 .build();
@@ -61,7 +112,7 @@ public class RoutePredicateFactoryConfig {
      * 2. 预期：启动后的1分钟内访问失败，1分钟到2分钟时访问正常，2分钟后访问失败
      */
     //@Bean
-    public RouteLocator betweenPredicate(RouteLocatorBuilder builder){
+    public RouteLocator betweenPredicate(RouteLocatorBuilder builder) {
         // 生成比当前时间晚 1 分钟的 UTC 时间
         ZonedDateTime start = LocalDateTime.now().plusMinutes(1L).atZone(ZoneId.systemDefault());
         // 生成比当前时间晚 2 分钟的 UTC 时间
